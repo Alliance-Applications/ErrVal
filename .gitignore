@@ -1,0 +1,13 @@
+# .NET
+
+**/bin/
+**/obj/
+
+**/*.DotSettings.user
+
+# IDE
+
+**/.vs/
+**/.vscode/
+**/.fleet/
+**/.idea/

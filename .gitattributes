@@ -1,0 +1,7 @@
+﻿*               text=auto
+
+*.gitattributes export-ignore
+*.gitignore     export-ignore
+*.gitmodules    export-ignore
+
+*.md            text diff=markdown

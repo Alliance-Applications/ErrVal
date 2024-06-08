@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AssemblyName>AllianceSoftware.ErrVal</AssemblyName>
+        <Version>0.3.0</Version>
+        <Title>Error By Value</Title>
+        <Authors>raphael.mateusdasneves@alliance-software.io</Authors>
+        <Description>Rust style Option&lt;T&gt; and Result&lt;T, TErr&gt; types with all functions one knows and loves from Rust.</Description>
+        <PackageLicenseUrl>https://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+        <Copyright>Copyright 2024 Raphael Mateus das Neves</Copyright>
+        <PackageProjectUrl>https://github.com/Alliance-Applications/ErrVal</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Alliance-Applications/ErrVal</RepositoryUrl>
+        <PackageTags>"error handling"</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <None Include="../README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+</Project>
