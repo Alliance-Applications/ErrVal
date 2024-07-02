@@ -1,6 +1,7 @@
 using System.Diagnostics.Contracts;
+using ErrVal.Result;
 
-namespace ErrVal;
+namespace ErrVal.Option;
 
 public static class OptionExtensions
 {

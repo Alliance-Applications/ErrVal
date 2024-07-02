@@ -1,4 +1,5 @@
-using ErrVal;
+using ErrVal.Option;
+using ErrVal.Result;
 
 namespace Test;
 

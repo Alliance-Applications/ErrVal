@@ -1,6 +1,7 @@
 using System.Diagnostics.Contracts;
+using ErrVal.Option;
 
-namespace ErrVal;
+namespace ErrVal.Result;
 
 [Pure]
 public record Result<T, TErr> : IComparable<Result<T, TErr>> where T : notnull where TErr : notnull
