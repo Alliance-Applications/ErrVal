@@ -1,4 +1,6 @@
-﻿namespace ErrVal;
+﻿using ErrVal.Option;
+
+namespace ErrVal.Result;
 
 public static class ResultExtensions
 {
