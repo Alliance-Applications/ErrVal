@@ -147,4 +147,10 @@ public static class OptionExtensions
         where TOut : notnull => (await self).Xor(other);
 
     #endregion
+
+    public static async Task Match<T>(this Task<Option<T>> self, Action<T> onSome, Action onNone)
+        where T : notnull => (await self).Match(onSome, onNone);
+
+    public static async Task Match<T>(this Task<Option<T>> self, Func<T, Task> onSome, Func<Task> onNone)
+        where T : notnull => await (await self).Match(onSome, onNone);
 }

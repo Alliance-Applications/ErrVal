@@ -372,4 +372,15 @@ public class OptionUnitTests
     }
 
     #endregion
+
+    [Fact]
+    public async Task Option_Match()
+    {
+        var i = 0;
+
+        await AsyncSomeData.Match(data => i += data.Value, () => ++i);
+        await AsyncNone.Match(async data => await Task.Run(() => i += data.Value), async () => await Task.Run(() => i++));
+
+        Assert.Equal(6, i);
+    }
 }

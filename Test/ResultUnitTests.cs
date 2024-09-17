@@ -299,4 +299,17 @@ public async Task Result_InspectAsync()
     }
 
     #endregion
+
+    [Fact]
+    public async Task Result_Match()
+    {
+        var i = 0;
+        var exception = default(TestError);
+
+        await AsyncOkData.Match(ok => i += ok.Value, err => throw new(err.Message));
+        await AsyncErrData.Match(ok => Task.Run(() => i += ok.Value), err => Task.Run(() => exception = err));
+
+        Assert.Equal(5, i);
+        Assert.Equal(ExceptionData, exception);
+    }
 }

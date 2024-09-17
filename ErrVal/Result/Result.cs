@@ -108,8 +108,8 @@ public record Result<T, TErr> : IComparable<Result<T, TErr>> where T : notnull w
 
     #region Boolean operators
 
-    public Result<TOut, TErr> And<TOut>(Result<TOut, TErr> other)
-        where TOut : notnull => err != null ? new(err) : other;
+    public Result<TOut, TErr2> And<TOut, TErr2>(Result<TOut, TErr2> other)
+        where TOut : notnull where TErr2 : TErr  => err != null ? new((TErr2)err) : other;
 
     public Result<TOut, TErr> AndThen<TOut>(Func<T, Result<TOut, TErr>> func)
         where TOut : notnull => err != null ? new(err) : func(ok!);
@@ -127,4 +127,28 @@ public record Result<T, TErr> : IComparable<Result<T, TErr>> where T : notnull w
         where TErrOut : notnull => ok != null ? new(ok) : await func(err!);
 
     #endregion
+
+    public void Match(Action<T> onOk, Action<TErr> onErr)
+    {
+        if (ok != null)
+        {
+            onOk(ok);
+        }
+        else
+        {
+            onErr(err!);
+        }
+    }
+
+    public async Task Match(Func<T, Task> onOk, Func<TErr, Task> onErr)
+    {
+        if (ok != null)
+        {
+            await onOk(ok);
+        }
+        else
+        {
+            await onErr(err!);
+        }
+    }
 }

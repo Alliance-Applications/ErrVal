@@ -155,4 +155,10 @@ public static class ResultExtensions
         where T : notnull where TErr : notnull where TErrOut : notnull => await (await self).OrElse(func);
 
     #endregion
+
+    public static async Task Match<T, TErr>(this Task<Result<T, TErr>> self, Action<T> onOk, Action<TErr> onErr)
+        where T : notnull where TErr : notnull => (await self).Match(onOk, onErr);
+
+    public static async Task Match<T, TErr>(this Task<Result<T, TErr>> self, Func<T, Task> onOk, Func<TErr, Task> onErr)
+        where T : notnull where TErr : notnull => await (await self).Match(onOk, onErr);
 }

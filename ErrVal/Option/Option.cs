@@ -187,4 +187,28 @@ public record Option<T> : IComparable<Option<T>> where T : notnull
     public Option<T> Xor(Option<T> other) => other.Val == null ? this : Val == null ? other : new();
 
     #endregion
+
+    public void Match(Action<T> onSome, Action onNone)
+    {
+        if (Val != null)
+        {
+            onSome(Val);
+        }
+        else
+        {
+            onNone();
+        }
+    }
+
+    public async Task Match(Func<T, Task> onSome, Func<Task> onNone)
+    {
+        if (Val != null)
+        {
+            await onSome(Val);
+        }
+        else
+        {
+            await onNone();
+        }
+    }
 }
