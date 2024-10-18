@@ -4,7 +4,7 @@ using ErrVal.Option;
 namespace ErrVal.Result;
 
 [Pure]
-public record Result<T> : IComparable<Result<T>>, IEquatable<Result<T>> where T : notnull
+public record Result<T> : IComparable<Result<T>> where T : notnull
 {
     internal readonly Error? err;
     internal readonly T? ok;
@@ -45,6 +45,24 @@ public record Result<T> : IComparable<Result<T>>, IEquatable<Result<T>> where T 
 
     public Error ExpectErr(string message) => err ?? throw new NullReferenceException(message);
     public Error UnwrapErr() => err ?? throw new NullReferenceException();
+
+    public void Match(Action<T> onOk, Action<Error> onErr)
+    {
+        switch (ok)
+        {
+            case not null: onOk(ok); break;
+            case null: onErr(err!); break;
+        }
+    }
+
+    public async Task Match(Func<T, Task> onOk, Func<Error, Task> onErr)
+    {
+        switch (ok)
+        {
+            case not null: await onOk(ok).ConfigureAwait(false); break;
+            case null: await onErr(err!).ConfigureAwait(false); break;
+        }
+    }
 
     #endregion
 

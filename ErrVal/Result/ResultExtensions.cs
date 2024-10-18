@@ -58,6 +58,12 @@ public static class ResultExtensions
     public static async Task<Error> UnwrapErr<T>(this Task<Result<T>> self)
         where T : notnull => (await self.ConfigureAwait(false)).UnwrapErr();
 
+    public static async Task Match<T>(this Task<Result<T>> self, Action<T> onOk, Action<Error> onErr)
+        where T : notnull => (await self.ConfigureAwait(false)).Match(onOk, onErr);
+
+    public static async Task Match<T>(this Task<Result<T>> self, Func<T, Task> onOk, Func<Error, Task> onErr)
+        where T : notnull => await (await self.ConfigureAwait(false)).Match(onOk, onErr).ConfigureAwait(false);
+
     #endregion
 
     #region Transforming contained values
