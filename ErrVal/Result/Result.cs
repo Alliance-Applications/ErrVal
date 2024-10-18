@@ -4,23 +4,23 @@ using ErrVal.Option;
 namespace ErrVal.Result;
 
 [Pure]
-public record Result<T, TErr> : IComparable<Result<T, TErr>> where T : notnull where TErr : notnull
+public record Result<T> : IComparable<Result<T>>, IEquatable<Result<T>> where T : notnull
 {
-    internal readonly TErr? err;
+    internal readonly Error? err;
     internal readonly T? ok;
 
     internal Result(T ok) => this.ok = ok;
 
-    internal Result(TErr err) => this.err = err;
+    internal Result(Error err) => this.err = err;
 
     [Pure] public bool IsOk => ok != null;
 
     [Pure] public bool IsErr => err != null;
 
-    public int CompareTo(Result<T, TErr>? other) => other == null
+    public int CompareTo(Result<T>? other) => other == null
         ? 1
         : other.err is { } e
-            ? err == null ? -1 : err is IComparable<TErr> comparable ? comparable.CompareTo(e) : 0
+            ? err == null ? -1 : err is IComparable<Error> comparable ? comparable.CompareTo(e) : 0
             : ok == null
                 ? 1
                 : ok is IComparable<T> cmp
@@ -41,10 +41,10 @@ public record Result<T, TErr> : IComparable<Result<T, TErr>> where T : notnull w
     public T? UnwrapOrDefault() => ok ?? default;
 
     public T UnwrapOrElse(Func<T> func) => ok ?? func();
-    public async Task<T> UnwrapOrElseAsync(Func<Task<T>> func) => ok ?? await func();
+    public async Task<T> UnwrapOrElseAsync(Func<Task<T>> func) => ok ?? await func().ConfigureAwait(false);
 
-    public TErr ExpectErr(string message) => err ?? throw new NullReferenceException(message);
-    public TErr UnwrapErr() => err ?? throw new NullReferenceException();
+    public Error ExpectErr(string message) => err ?? throw new NullReferenceException(message);
+    public Error UnwrapErr() => err ?? throw new NullReferenceException();
 
     #endregion
 
@@ -54,77 +54,74 @@ public record Result<T, TErr> : IComparable<Result<T, TErr>> where T : notnull w
     public Option<T> Ok() => new(ok);
 
     [Pure]
-    public Option<TErr> Err() => new(err);
+    public Option<Error> Err() => new(err);
 
-    public Result<T, TErr> Inspect(Action<T> func)
+    public Result<T> Inspect(Action<T> func)
     {
         if (ok != null) func(ok);
         return this;
     }
 
-    public async Task<Result<T, TErr>> Inspect(Func<T, Task> func)
+    public async Task<Result<T>> Inspect(Func<T, Task> func)
     {
-        if (ok != null) await func(ok);
+        if (ok != null) await func(ok).ConfigureAwait(false);
         return this;
     }
 
-    public Result<T, TErr> InspectErr(Action<TErr> func)
+    public Result<T> InspectErr(Action<Error> func)
     {
         if (err != null) func(err);
         return this;
     }
 
-    public async Task<Result<T, TErr>> InspectErr(Func<TErr, Task> func)
+    public async Task<Result<T>> InspectErr(Func<Error, Task> func)
     {
-        if (err != null) await func(err);
+        if (err != null) await func(err).ConfigureAwait(false);
         return this;
     }
 
-    public Result<TOut, TErr> Map<TOut>(Func<T, TOut> func)
-        where TOut : notnull => ok != null ? new(func(ok)) : new(err!);
+    public Result<TOut> Map<TOut>(Func<T, TOut> func) where TOut : notnull
+        => ok is null ? new(err!) : new(func(ok));
 
-    public async Task<Result<TOut, TErr>> Map<TOut>(Func<T, Task<TOut>> func)
-        where TOut : notnull => ok != null ? new(await func(ok)) : new(err!);
+    public async Task<Result<TOut>> Map<TOut>(Func<T, Task<TOut>> func) where TOut : notnull
+        => ok is null ? new(err!) : new(await func(ok).ConfigureAwait(false));
 
-    public Result<T, TOut> MapErr<TOut>(Func<TErr, TOut> func)
-        where TOut : notnull => ok != null ? new(ok) : new(func(err!));
+    public Result<T> MapErr(Func<Error, Error> func)
+        => ok != null ? new(ok) : new(func(err!));
 
-    public async Task<Result<T, TOut>> MapErr<TOut>(Func<TErr, Task<TOut>> func)
-        where TOut : notnull => ok != null ? new(ok) : new(await func(err!));
+    public async Task<Result<T>> MapErr(Func<Error, Task<Error>> func)
+        => ok != null ? new(ok) : new(await func(err!).ConfigureAwait(false));
 
     public TOut MapOr<TOut>(TOut defaultValue, Func<T, TOut> func)
         => ok != null ? func(ok) : defaultValue;
 
     public async Task<TOut> MapOr<TOut>(TOut defaultValue, Func<T, Task<TOut>> func)
-        => ok != null ? await func(ok) : defaultValue;
+        => ok != null ? await func(ok).ConfigureAwait(false) : defaultValue;
 
-    public TOut MapOrElse<TOut>(Func<TErr, TOut> defaultFunc, Func<T, TOut> func)
+    public TOut MapOrElse<TOut>(Func<Error, TOut> defaultFunc, Func<T, TOut> func)
         => ok != null ? func(ok) : defaultFunc(err!);
 
-    public async Task<TOut> MapOrElse<TOut>(Func<TErr, Task<TOut>> defaultFunc, Func<T, Task<TOut>> func)
-        => ok != null ? await func(ok) : await defaultFunc(err!);
+    public async Task<TOut> MapOrElse<TOut>(Func<Error, Task<TOut>> defaultFunc, Func<T, Task<TOut>> func)
+        => ok != null ? await func(ok).ConfigureAwait(false) : await defaultFunc(err!).ConfigureAwait(false);
 
     #endregion
 
     #region Boolean operators
 
-    public Result<TOut, TErr> And<TOut>(Result<TOut, TErr> other)
+    public Result<TOut> And<TOut>(Result<TOut> other)
         where TOut : notnull => err != null ? new(err) : other;
 
-    public Result<TOut, TErr> AndThen<TOut>(Func<T, Result<TOut, TErr>> func)
+    public Result<TOut> AndThen<TOut>(Func<T, Result<TOut>> func)
         where TOut : notnull => err != null ? new(err) : func(ok!);
 
-    public async Task<Result<TOut, TErr>> AndThen<TOut>(Func<T, Task<Result<TOut, TErr>>> func)
-        where TOut : notnull => err != null ? new(err) : await func(ok!);
+    public async Task<Result<TOut>> AndThen<TOut>(Func<T, Task<Result<TOut>>> func)
+        where TOut : notnull => err != null ? new(err) : await func(ok!).ConfigureAwait(false);
 
-    public Result<T, TErrOut> Or<TErrOut>(Result<T, TErrOut> other)
-        where TErrOut : notnull => ok != null ? new(ok) : other;
+    public Result<T> Or(Result<T> other) => ok != null ? new(ok) : other;
 
-    public Result<T, TErrOut> OrElse<TErrOut>(Func<TErr, Result<T, TErrOut>> func)
-        where TErrOut : notnull => ok != null ? new(ok) : func(err!);
+    public Result<T> OrElse(Func<Error, Result<T>> func) => ok != null ? new(ok) : func(err!);
 
-    public async Task<Result<T, TErrOut>> OrElse<TErrOut>(Func<TErr, Task<Result<T, TErrOut>>> func)
-        where TErrOut : notnull => ok != null ? new(ok) : await func(err!);
+    public async Task<Result<T>> OrElse(Func<Error, Task<Result<T>>> func) => ok != null ? new(ok) : await func(err!).ConfigureAwait(false);
 
     #endregion
 }
