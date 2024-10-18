@@ -33,6 +33,12 @@ public static class OptionExtensions
     public static async Task<T> UnwrapOrElse<T>(this Task<Option<T>> self, Func<Task<T>> other)
         where T : notnull => await (await self.ConfigureAwait(false)).UnwrapOrElse(other).ConfigureAwait(false);
 
+    public static async Task Match<T>(this Task<Option<T>> self, Action<T> onSome, Action onNone)
+        where T : notnull => (await self.ConfigureAwait(false)).Match(onSome, onNone);
+
+    public static async Task Match<T>(this Task<Option<T>> self, Func<T, Task> onSome, Func<Task> onNone)
+        where T : notnull => await (await self.ConfigureAwait(false)).Match(onSome, onNone).ConfigureAwait(false);
+
     #endregion
 
     #region Transforming the contained values

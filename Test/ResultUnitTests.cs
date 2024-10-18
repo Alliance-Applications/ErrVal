@@ -126,6 +126,19 @@ public class ResultUnitTests
         Assert.Equal("Object reference not set to an instance of an object.", e.Message);
     }
 
+    [Fact]
+    public async Task Result_Match()
+    {
+        var i = 0;
+        var exception = default(Error);
+
+        await AsyncOkData.Match(ok => i += ok.Value, err => throw new((err as TestError)!.Message));
+        await AsyncErrData.Match(ok => Task.Run(() => i += ok.Value), err => Task.Run(() => exception = err));
+
+        Assert.Equal(5, i);
+        Assert.Equal(ExceptionData, exception);
+    }
+
     #endregion
 
     #region Transforming contained values

@@ -79,6 +79,30 @@ public record Option<T> : IComparable<Option<T>> where T : notnull
 
     public async Task<T> UnwrapOrElse(Func<Task<T>> defaultFunc) => Val ?? await defaultFunc().ConfigureAwait(false);
 
+    public void Match(Action<T> onSome, Action onNone)
+    {
+        if (Val != null)
+        {
+            onSome(Val);
+        }
+        else
+        {
+            onNone();
+        }
+    }
+
+    public async Task Match(Func<T, Task> onSome, Func<Task> onNone)
+    {
+        if (Val != null)
+        {
+            await onSome(Val).ConfigureAwait(false);
+        }
+        else
+        {
+            await onNone().ConfigureAwait(false);
+        }
+    }
+
     #endregion
 
     #region Transforming the contained values
