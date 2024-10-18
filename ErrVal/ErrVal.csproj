@@ -5,7 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AssemblyName>AllianceSoftware.ErrVal</AssemblyName>
-        <Version>0.4.0</Version>
+        <Version>0.5.0</Version>
         <Title>Error By Value</Title>
         <Authors>raphael.mateusdasneves@alliance-software.io</Authors>
         <Description>Rust style Option&lt;T&gt; and Result&lt;T, TErr&gt; types with all functions one knows and loves from Rust.</Description>
@@ -13,7 +13,7 @@
         <Copyright>Copyright 2024 Raphael Mateus das Neves</Copyright>
         <PackageProjectUrl>https://github.com/Alliance-Applications/ErrVal</PackageProjectUrl>
         <RepositoryUrl>https://github.com/Alliance-Applications/ErrVal</RepositoryUrl>
-        <PackageTags>"error handling"</PackageTags>
+        <PackageTags>error-handling</PackageTags>
         <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
     

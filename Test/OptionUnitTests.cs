@@ -120,14 +120,14 @@ public class OptionUnitTests
     [Fact]
     public async Task Option_Transpose()
     {
-        var optionOfNone = Task.FromResult(Option<Result<TestData, TestError>>.None());
-        Assert.Equal(Option<TestData>.None().Ok<Option<TestData>, TestError>(), await optionOfNone.Transpose());
+        var optionOfNone = Task.FromResult(Option<Result<TestData>>.None());
+        Assert.Equal(Option<TestData>.None().Ok(), await optionOfNone.Transpose());
 
         var optionOfErr = Task.FromResult(ErrData.Some());
-        Assert.Equal(ExceptionData.Err<Option<TestData>, TestError>(), await optionOfErr.Transpose());
+        Assert.Equal(ExceptionData.Err<Option<TestData>>(), await optionOfErr.Transpose());
 
         var optionOfOk = Task.FromResult(OkData.Some());
-        Assert.Equal(Data.Some().Ok<Option<TestData>, TestError>(), await optionOfOk.Transpose());
+        Assert.Equal(Data.Some().Ok(), await optionOfOk.Transpose());
     }
 
     [Fact]
@@ -323,7 +323,7 @@ public class OptionUnitTests
         Assert.Equal(None, await AsyncNone.AndThen(_ => None));
         Assert.Equal(None, await AsyncNone.AndThen(_ => SomeCompare));
         Assert.Equal(None, await AsyncSomeData.AndThen(_ => None));
-        Assert.Equal(SomeData, await AsyncSomeData.AndThen(_ => SomeCompare));
+        Assert.Equal(SomeCompare, await AsyncSomeData.AndThen(_ => SomeCompare));
     }
 
     [Fact]

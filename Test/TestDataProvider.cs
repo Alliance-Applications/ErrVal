@@ -8,13 +8,13 @@ internal static class TestDataProvider
     internal static TestData Data => new(5);
     internal static TestData Compare => new(6);
 
-    internal static TestError ExceptionData => new("TEST");
-    internal static TestError ExceptionCompare => new("COMPARE");
+    internal static Error ExceptionData => new TestError("TEST");
+    internal static Error ExceptionCompare => new TestError("COMPARE");
 
     internal static TestData ReturnData() => Data;
     internal static TestData ReturnCompare() => Compare;
-    internal static TestError ReturnErrorData() => ExceptionData;
-    internal static TestError ReturnErrorCompare() => ExceptionCompare;
+    internal static Error ReturnErrorData() => ExceptionData;
+    internal static Error ReturnErrorCompare() => ExceptionCompare;
 
     internal static Option<TestData> ReturnNone() => None;
     internal static Option<TestData> ReturnSome() => SomeData;
@@ -26,8 +26,8 @@ internal static class TestDataProvider
 
     internal static Task<TestData> ReturnDataAsync() => Task.FromResult(Data);
     internal static Task<TestData> ReturnCompareAsync() => Task.FromResult(Compare);
-    internal static Task<TestError> ReturnErrorDataAsync() => Task.FromResult(ExceptionData);
-    internal static Task<TestError> ReturnErrorCompareAsync() => Task.FromResult(ExceptionCompare);
+    internal static Task<Error> ReturnErrorDataAsync() => Task.FromResult(ExceptionData);
+    internal static Task<Error> ReturnErrorCompareAsync() => Task.FromResult(ExceptionCompare);
 
     internal static Option<TestData> SomeData => Data.Some();
     internal static Option<TestData> SomeCompare => Compare.Some();
@@ -37,15 +37,15 @@ internal static class TestDataProvider
     internal static Task<Option<TestData>> AsyncSomeCompare => Task.FromResult(Compare.Some());
     internal static Task<Option<TestData>> AsyncNone => Task.FromResult(Option<TestData>.None());
 
-    internal static Result<TestData, TestError> OkData => Data.Ok<TestData, TestError>();
-    internal static Result<TestData, TestError> ErrData => ExceptionData.Err<TestData, TestError>();
-    internal static Result<TestData, TestError> OkCompare => Compare.Ok<TestData, TestError>();
-    internal static Result<TestData, TestError> ErrCompare => ExceptionCompare.Err<TestData, TestError>();
+    internal static Result<TestData> OkData => Data.Ok();
+    internal static Result<TestData> ErrData => ExceptionData.Err<TestData>();
+    internal static Result<TestData> OkCompare => Compare.Ok();
+    internal static Result<TestData> ErrCompare => ExceptionCompare.Err<TestData>();
 
-    internal static Task<Result<TestData, TestError>> AsyncOkData => Task.FromResult(OkData);
-    internal static Task<Result<TestData, TestError>> AsyncErrData => Task.FromResult(ErrData);
-    internal static Task<Result<TestData, TestError>> AsyncOkCompare => Task.FromResult(OkCompare);
-    internal static Task<Result<TestData, TestError>> AsyncErrCompare => Task.FromResult(ErrCompare);
+    internal static Task<Result<TestData>> AsyncOkData => Task.FromResult(OkData);
+    internal static Task<Result<TestData>> AsyncErrData => Task.FromResult(ErrData);
+    internal static Task<Result<TestData>> AsyncOkCompare => Task.FromResult(OkCompare);
+    internal static Task<Result<TestData>> AsyncErrCompare => Task.FromResult(ErrCompare);
 
     internal record TestData(int Value) : IComparable<TestData>
     {
@@ -66,7 +66,7 @@ internal static class TestDataProvider
         public override int GetHashCode() => Value.GetHashCode();
     }
 
-    internal sealed record TestError(string Message) : IComparable<TestError>
+    internal sealed record TestError(string Message) : Error, IComparable<TestError>
     {
         public int CompareTo(TestError? other)
         {

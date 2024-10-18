@@ -21,8 +21,8 @@ public class ResultUnitTests
         Assert.Equal(1, OkCompare.CompareTo(OkData));
 
         Assert.Equal(0, ErrData.CompareTo(ErrData));
-        Assert.Equal(17, ErrData.CompareTo(ErrCompare));
-        Assert.Equal(-17, ErrCompare.CompareTo(ErrData));
+        Assert.Equal(0, ErrData.CompareTo(ErrCompare));
+        Assert.Equal(0, ErrCompare.CompareTo(ErrData));
     }
 
     [Fact]
@@ -36,7 +36,7 @@ public class ResultUnitTests
     public void Result_Guarded()
     {
         Func<TestData> throws = () => throw new();
-        Assert.Equal(Data.Ok<TestData, Exception>(), ResultExtensions.Guarded(ReturnData));
+        Assert.Equal(Data.Ok(), ResultExtensions.Guarded(ReturnData));
         Assert.True(throws.Guarded() is { IsErr: true, IsOk: false });
     }
 
@@ -44,7 +44,7 @@ public class ResultUnitTests
     public async Task Result_GuardedAsync()
     {
         Func<Task<TestData>> throws = () => throw new();
-        Assert.Equal(Data.Ok<TestData, Exception>(), await ResultExtensions.GuardedAsync(ReturnDataAsync));
+        Assert.Equal(Data.Ok(), await ResultExtensions.GuardedAsync(ReturnDataAsync));
         Assert.True((await throws.GuardedAsync()) is { IsErr: true, IsOk: false });
     }
 
@@ -140,15 +140,15 @@ public class ResultUnitTests
     [Fact]
     public async Task Result_Err()
     {
-        Assert.Equal(Option<TestError>.None(), await AsyncOkData.Err());
+        Assert.Equal(Option<Error>.None(), await AsyncOkData.Err());
         Assert.Equal(ExceptionData.Some(), await AsyncErrData.Err());
     }
 
     [Fact]
     public async Task Result_Transpose()
     {
-        var expected = Data.Ok<TestData, TestError>().Some();
-        var actual = Task.FromResult(SomeData.Ok<Option<TestData>, TestError>());
+        var expected = Data.Ok().Some();
+        var actual = Task.FromResult(SomeData.Ok());
         Assert.Equal(expected, await actual.Transpose());
     }
 

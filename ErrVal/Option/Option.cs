@@ -77,28 +77,22 @@ public record Option<T> : IComparable<Option<T>> where T : notnull
     /// </returns>
     public T UnwrapOrElse(Func<T> defaultFunc) => Val ?? defaultFunc();
 
-    public async Task<T> UnwrapOrElse(Func<Task<T>> defaultFunc) => Val ?? await defaultFunc();
+    public async Task<T> UnwrapOrElse(Func<Task<T>> defaultFunc) => Val ?? await defaultFunc().ConfigureAwait(false);
 
     #endregion
 
     #region Transforming the contained values
 
     [Pure]
-    public Result<T, TErr> OkOr<TErr>(TErr err)
-        where TErr : notnull =>
-        Val?.Ok<T, TErr>() ?? err.Err<T, TErr>();
+    public Result<T> OkOr(Error err) => Val?.Ok<T>() ?? err.Err<T>();
 
-    public Result<T, TErr> OkOrElse<TErr>(Func<TErr> func)
-        where TErr : notnull =>
-        Val?.Ok<T, TErr>() ?? func().Err<T, TErr>();
+    public Result<T> OkOrElse(Func<Error> func) => Val?.Ok<T>() ?? func().Err<T>();
 
-    public async Task<Result<T, TErr>> OkOrElse<TErr>(Func<Task<TErr>> func)
-        where TErr : notnull =>
-        Val?.Ok<T, TErr>() ?? (await func()).Err<T, TErr>();
+    public async Task<Result<T>> OkOrElse(Func<Task<Error>> func) => Val?.Ok<T>() ?? (await func().ConfigureAwait(false)).Err<T>();
 
     public Option<T> Filter(Func<T, bool> func) => Val is not null && !func(Val) ? new() : this;
 
-    public async Task<Option<T>> Filter(Func<T, Task<bool>> func) => Val is not null && !await func(Val) ? new() : this;
+    public async Task<Option<T>> Filter(Func<T, Task<bool>> func) => Val is not null && !await func(Val).ConfigureAwait(false) ? new() : this;
 
     public Option<T> Inspect(Action<T> action)
     {
@@ -108,7 +102,7 @@ public record Option<T> : IComparable<Option<T>> where T : notnull
 
     public async Task<Option<T>> Inspect(Func<T, Task> action)
     {
-        if (Val != null) await action(Val);
+        if (Val != null) await action(Val).ConfigureAwait(false);
         return this;
     }
 
@@ -118,7 +112,7 @@ public record Option<T> : IComparable<Option<T>> where T : notnull
 
     public async Task<Option<TOut>> Map<TOut>(Func<T, Task<TOut>> func)
         where TOut : notnull =>
-        new(Val != null ? await func(Val) : default);
+        new(Val != null ? await func(Val).ConfigureAwait(false) : default);
 
     public Option<TOut> MapOr<TOut>(T defaultValue, Func<T, TOut> func)
         where TOut : notnull =>
@@ -126,7 +120,7 @@ public record Option<T> : IComparable<Option<T>> where T : notnull
 
     public async Task<Option<TOut>> MapOr<TOut>(T defaultValue, Func<T, Task<TOut>> func)
         where TOut : notnull =>
-        new(await func(Val ?? defaultValue));
+        new(await func(Val ?? defaultValue).ConfigureAwait(false));
 
     public Option<TOut> MapOrElse<TOut>(Func<T> defaultFunc, Func<T, TOut> func)
         where TOut : notnull =>
@@ -134,7 +128,7 @@ public record Option<T> : IComparable<Option<T>> where T : notnull
 
     public async Task<Option<TOut>> MapOrElse<TOut>(Func<Task<T>> defaultFunc, Func<T, Task<TOut>> func)
         where TOut : notnull =>
-        new(await func(Val ?? await defaultFunc()));
+        new(await func(Val ?? await defaultFunc().ConfigureAwait(false)).ConfigureAwait(false));
 
     [Pure]
     public Option<(T, TOut)> Zip<TOut>(Option<TOut> other)
@@ -149,7 +143,7 @@ public record Option<T> : IComparable<Option<T>> where T : notnull
     public async Task<Option<TOut>> ZipWith<TOther, TOut>(Option<TOther> other, Func<T, TOther, Task<TOut>> func)
         where TOut : notnull
         where TOther : notnull =>
-        Val != null && other.Val != null ? new(await func(Val, other.Val)) : new();
+        Val != null && other.Val != null ? new(await func(Val, other.Val).ConfigureAwait(false)) : new();
 
     public Option<TOut> FlatMap<TOut>(Func<T, Option<TOut>> func)
         where TOut : notnull =>
@@ -157,7 +151,7 @@ public record Option<T> : IComparable<Option<T>> where T : notnull
 
     public async Task<Option<TOut>> FlatMap<TOut>(Func<T, Task<Option<TOut>>> func)
         where TOut : notnull =>
-        Val != null ? await func(Val) : new();
+        Val != null ? await func(Val).ConfigureAwait(false) : new();
 
     #endregion
 
@@ -174,14 +168,14 @@ public record Option<T> : IComparable<Option<T>> where T : notnull
 
     public async Task<Option<TOut>> AndThen<TOut>(Func<T, Task<Option<TOut>>> func)
         where TOut : notnull =>
-        Val == null ? new() : await func(Val);
+        Val == null ? new() : await func(Val).ConfigureAwait(false);
 
     [Pure]
     public Option<T> Or(Option<T> other) => Val != null ? this : other;
 
     public Option<T> OrElse(Func<Option<T>> func) => Val == null ? func() : this;
 
-    public async Task<Option<T>> OrElse(Func<Task<Option<T>>> func) => Val == null ? await func() : this;
+    public async Task<Option<T>> OrElse(Func<Task<Option<T>>> func) => Val == null ? await func().ConfigureAwait(false) : this;
 
     [Pure]
     public Option<T> Xor(Option<T> other) => other.Val == null ? this : Val == null ? other : new();
