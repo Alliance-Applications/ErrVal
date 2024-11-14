@@ -205,4 +205,11 @@ public record Option<T> : IComparable<Option<T>> where T : notnull
     public Option<T> Xor(Option<T> other) => other.Val == null ? this : Val == null ? other : new();
 
     #endregion
+
+    /// <summary>
+    /// Implicitly converts a nullable value of type <typeparamref name="T?"/> to an <see cref="Option{T}"/>.
+    /// </summary>
+    /// <param name="val">The value to convert.</param>
+    /// <returns>An <see cref="Option{T}"/> containing the value.</returns>
+    public static implicit operator Option<T>(T? val) => new(val);
 }
