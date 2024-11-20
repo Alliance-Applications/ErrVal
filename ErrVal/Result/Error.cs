@@ -19,7 +19,7 @@ public record Context(string Message, Context? SubContext = null)
 
     private void BuildString(StringBuilder b)
     {
-        b.Append(SubContext == null ? "\u2517 " : "\u251d ").Append(Message).AppendLine();
+        b.Append(SubContext == null ? "\u2514\u2500\u2500 " : "\u251c\u2500\u2500 ").Append(Message).AppendLine();
         SubContext?.BuildString(b);
     }
 }
