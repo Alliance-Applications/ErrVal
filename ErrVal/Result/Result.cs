@@ -142,4 +142,38 @@ public record Result<T> : IComparable<Result<T>> where T : notnull
     public async Task<Result<T>> OrElse(Func<Error, Task<Result<T>>> func) => ok != null ? new(ok) : await func(err!).ConfigureAwait(false);
 
     #endregion
+
+    public Result<T> AddContext(string message)
+    {
+        if (err != null)
+        {
+            return new(err with
+            {
+                Context = new(message, err.Context)
+            });
+        }
+
+        return this;
+    }
+
+    /// <summary>
+    /// Implicitly converts a value of type <typeparamref name="T"/> to a <see cref="Result{T}"/>.
+    /// </summary>
+    /// <param name="value">The value to be converted to a <see cref="Result{T}"/>.</param>
+    /// <returns>A <see cref="Result{T}"/> containing the provided value.</returns>
+    public static implicit operator Result<T>(T value) => new(value);
+
+    /// <summary>
+    /// Implicitly converts an <see cref="Error"/> to a <see cref="Result{T}"/>.
+    /// </summary>
+    /// <param name="error">The error to be converted to a <see cref="Result{T}"/>.</param>
+    /// <returns>A <see cref="Result{T}"/> containing the provided error.</returns>
+    public static implicit operator Result<T>(Error error) => new(error);
+
+    /// <summary>
+    /// Implicitly converts an <see cref="Exception"/> to a <see cref="Result{T}"/>.
+    /// </summary>
+    /// <param name="exception">The exception to be converted to a <see cref="Result{T}"/>.</param>
+    /// <returns>A <see cref="Result{T}"/> containing the provided exception.</returns>
+    public static implicit operator Result<T>(Exception exception) => new ExceptionError(exception);
 }

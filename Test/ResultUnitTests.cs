@@ -29,7 +29,7 @@ public class ResultUnitTests
     public void Result_ToString()
     {
         Assert.Equal("Ok(TestData { Value = 5 })", OkData.ToString());
-        Assert.Equal("Err(TestError { Message = TEST })", ErrData.ToString());
+        Assert.Equal("Err(TestError { Context = , Message = TEST })", ErrData.ToString());
     }
 
     [Fact]
@@ -45,7 +45,7 @@ public class ResultUnitTests
     {
         Func<Task<TestData>> throws = () => throw new();
         Assert.Equal(Data.Ok(), await ResultExtensions.GuardedAsync(ReturnDataAsync));
-        Assert.True((await throws.GuardedAsync()) is { IsErr: true, IsOk: false });
+        Assert.True(await throws.GuardedAsync() is { IsErr: true, IsOk: false });
     }
 
     #region Extracting contained values

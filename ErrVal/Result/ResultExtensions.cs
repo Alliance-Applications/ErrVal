@@ -4,6 +4,10 @@ namespace ErrVal.Result;
 
 public static class ResultExtensions
 {
+    public static Result<T> Err<T>(this string message) where T : notnull => new Error(new(message));
+
+    public static Result<T> Err<T>(this Exception message) where T : notnull => new ExceptionError(message);
+
     public static Result<T> Ok<T>(this T ok) where T : notnull => new(ok);
 
     public static Result<T> Err<T>(this Error err) where T : notnull => new(err);
@@ -12,11 +16,11 @@ public static class ResultExtensions
     {
         try
         {
-            return func().Ok();
+            return func();
         }
         catch (Exception e)
         {
-            return new ExceptionError(e).Err<T>();
+            return new ExceptionError(e);
         }
     }
 
@@ -24,11 +28,11 @@ public static class ResultExtensions
     {
         try
         {
-            return (await func().ConfigureAwait(false)).Ok();
+            return await func().ConfigureAwait(false);
         }
         catch (Exception e)
         {
-            return new ExceptionError(e).Err<T>();
+            return new ExceptionError(e);
         }
     }
 
@@ -139,4 +143,7 @@ public static class ResultExtensions
         where T : notnull => await (await self.ConfigureAwait(false)).OrElse(func).ConfigureAwait(false);
 
     #endregion
+
+    public static async Task<Result<T>> AddContext<T>(this Task<Result<T>> self, string message)
+        where T : notnull => (await self.ConfigureAwait(false)).AddContext(message);
 }
