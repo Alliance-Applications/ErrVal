@@ -1,5 +1,6 @@
 using ErrVal.Option;
 using ErrVal.Result;
+using ErrVal.Unit;
 
 namespace Test;
 
@@ -30,6 +31,17 @@ public class ResultUnitTests
     {
         Assert.Equal("Ok(TestData { Value = 5 })", OkData.ToString());
         Assert.Equal("Err(TestError { Context = , Message = TEST })", ErrData.ToString());
+    }
+
+    [Fact]
+    public void Error_WithContextLooksGood()
+    {
+        Result<Unit> err = new ValueError<int>(12);
+        err = err
+            .AddContext("while counting to 13")
+            .AddContext("while proving i can count")
+            .AddContext("while making fun of kindergarden kids");
+        Assert.Equal("Err(Error(Value = 12)\n\u251c\u2500\u2500 while making fun of kindergarden kids\n\u251c\u2500\u2500 while proving i can count\n\u2514\u2500\u2500 while counting to 13\n)", err.ToString());
     }
 
     [Fact]
